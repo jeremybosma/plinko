@@ -325,20 +325,22 @@ export default function Component() {
                                     <p className="text-lg font-bold text-red-500">{stats.losses}</p>
                                 </div>
                             </div>
-                            <ResponsiveContainer width="100%" height={200}>
-                                <LineChart data={stats.history}>
-                                    <XAxis dataKey="time" tick={false} />
-                                    <YAxis />
-                                    <Tooltip
-                                        contentStyle={{ backgroundColor: '#1F2937', border: 'none' }}
-                                        labelStyle={{ color: '#9CA3AF' }}
-                                        formatter={(value: number) => [`$${value.toFixed(2)}`, 'Profit']}
-                                        labelFormatter={(label: number) => new Date(label).toLocaleTimeString()}
-                                    />
-                                    {/* TODO: Make line red when profit is negative */}
-                                    <Line type="monotone" dataKey="profit" stroke="#10B981" dot={false} />
-                                </LineChart>
-                            </ResponsiveContainer>
+                            {stats.history.length > 0 && (
+                                <ResponsiveContainer width="100%" height={200}>
+                                    <LineChart data={stats.history}>
+                                        <XAxis dataKey="time" tick={false} />
+                                        <YAxis />
+                                        <Tooltip
+                                            contentStyle={{ backgroundColor: '#1F2937', border: 'none' }}
+                                            labelStyle={{ color: '#9CA3AF' }}
+                                            formatter={(value: number) => [`$${value.toFixed(2)}`, 'Profit']}
+                                            labelFormatter={(label: number) => new Date(label).toLocaleTimeString()}
+                                        />
+                                        {/* TODO: Make line red when profit is negative */}
+                                        <Line type="monotone" dataKey="profit" stroke="#10B981" dot={false} />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            )}
                         </div>
                     </motion.div>
                 )}
