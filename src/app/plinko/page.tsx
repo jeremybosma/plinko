@@ -14,34 +14,40 @@ const HORIZONTAL_VELOCITY = 0.8
 
 export default function Component() {
     const [balls, setBalls] = useState<Array<{ id: number, x: number, y: number, vx: number, vy: number }>>([])
-    const [balance, setBalance] = useState(() => {
-        const savedBalance = localStorage.getItem('plinkoBalance')
-        return savedBalance ? parseFloat(savedBalance) : INITIAL_BALANCE
-    })
+    const [balance, setBalance] = useState(INITIAL_BALANCE)
     const [betAmount, setBetAmount] = useState(1)
     const [risk, setRisk] = useState("medium")
     const [rows, setRows] = useState("16")
     const [activeSlot, setActiveSlot] = useState<number | null>(null)
     const [isAuto, setIsAuto] = useState(false)
     const [showStats, setShowStats] = useState(false)
-    const [stats, setStats] = useState<{ profit: number, wins: number, losses: number, history: Array<{ time: number, profit: number }> }>(() => {
-        if (typeof window !== 'undefined') {
-            const savedStats = localStorage.getItem('plinkoStats')
-            return savedStats ? JSON.parse(savedStats) as { profit: number, wins: number, losses: number, history: Array<{ time: number, profit: number }> } : { profit: 0, wins: 0, losses: 0, history: [] }
-        }
-        return { profit: 0, wins: 0, losses: 0, history: [] }
-    })
-    const [recentMultipliers, setRecentMultipliers] = useState<Array<number>>(() => {
-        if (typeof window !== 'undefined') {
-            const savedMultipliers = localStorage.getItem('plinkoRecentMultipliers')
-            return savedMultipliers ? JSON.parse(savedMultipliers) as number[] : []
-        }
-        return []
-    })
+    const [stats, setStats] = useState<{ profit: number, wins: number, losses: number, history: Array<{ time: number, profit: number }> }>({ profit: 0, wins: 0, losses: 0, history: [] })
+    const [recentMultipliers, setRecentMultipliers] = useState<Array<number>>([])
     const boardRef = useRef<HTMLDivElement>(null)
     const autoIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
     const slotMultipliers = useMemo(() => [110, 41, 10, 5, 3, 1.5, 1, 0.5, 0.3, 0.5, 1, 1.5, 3, 5, 10, 41, 110], [])
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const savedBalance = localStorage.getItem('plinkoBalance')
+            if (savedBalance) {
+                setBalance(parseFloat(savedBalance))
+            }
+
+            const savedStats = localStorage.getItem('plinkoStats')
+            if (savedStats) {
+                const parsedStats = JSON.parse(savedStats) as { profit: number; wins: number; losses: number; history: { time: number; profit: number; }[] };
+                setStats(parsedStats);
+            }
+
+            const savedMultipliers = localStorage.getItem('plinkoRecentMultipliers')
+            if (savedMultipliers) {
+                const parsedMultipliers = JSON.parse(savedMultipliers) as number[];
+                setRecentMultipliers(parsedMultipliers);
+            }
+        }
+    }, [])
 
     const getSlotColor = (multiplier: number) => {
         if (multiplier >= 41) return 'bg-red-500'
@@ -161,7 +167,7 @@ export default function Component() {
     }, [updateBallPosition])
 
     return (
-        <body className="flex w-screen h-screen flex-col items-center space-y-4 p-4 bg-gray-900 text-white mx-auto">
+        <main className="flex w-screen min-h-screen h-full flex-col items-center space-y-4 p-4 bg-gray-900 text-white mx-auto">
             <div className="w-full flex justify-between items-center">
                 <h1 className="text-2xl font-bold">Plinko</h1>
                 <span className="text-xl">${balance.toFixed(2)}</span>
@@ -327,6 +333,6 @@ export default function Component() {
                     </ResponsiveContainer>
                 </div>
             )}
-        </body>
+        </main>
     )
 }
