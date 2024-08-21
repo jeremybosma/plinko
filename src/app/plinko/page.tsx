@@ -176,12 +176,12 @@ export default function Component() {
             <div className="w-full flex flex-col md:flex-row gap-4">
                 <div className="w-full md:w-1/3 space-y-4 bg-gray-800 p-4 rounded-lg">
                     <div className="flex justify-between">
-                        <Button variant="secondary" size="sm">Manual</Button>
+                        <Button variant="secondary" size="sm" className="text-white bg-gray-600 hover:bg-gray-500">Manual</Button>
                         <Button
                             variant={isAuto ? "secondary" : "outline"}
                             size="sm"
                             onClick={toggleAuto}
-                            className="text-black"
+                            className="text-white bg-gray-600 border-none hover:bg-gray-500 hover:text-white"
                         >
                             {isAuto ? "Stop Auto" : "Start Auto"}
                         </Button>
@@ -194,7 +194,7 @@ export default function Component() {
                                 type="number"
                                 value={betAmount}
                                 onChange={(e) => setBetAmount(Number(e.target.value))}
-                                className="flex-grow bg-gray-700 text-white placeholder-gray-400"
+                                className="flex-grow bg-gray-700 text-white placeholder-gray-400 border-gray-600"
                                 placeholder="Enter bet amount"
                             />
                             <Button variant="secondary" size="sm" onClick={() => setBetAmount(prev => prev / 2)}>½</Button>
@@ -205,7 +205,7 @@ export default function Component() {
                     <div className="space-y-2">
                         <label className="text-sm">Risk</label>
                         <Select value={risk} onValueChange={setRisk}>
-                            <SelectTrigger className="bg-gray-700 text-white">
+                            <SelectTrigger className="bg-gray-700 text-white border-gray-600">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -219,7 +219,7 @@ export default function Component() {
                     <div className="space-y-2">
                         <label className="text-sm">Rows</label>
                         <Select value={rows} onValueChange={setRows}>
-                            <SelectTrigger className="bg-gray-700 text-white">
+                            <SelectTrigger className="bg-gray-700 text-white border-gray-600">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -299,40 +299,50 @@ export default function Component() {
                 </div>
             </div>
 
-            {showStats && (
-                <div className="w-full bg-gray-800 p-4 rounded-lg">
-                    <h2 className="text-xl font-bold mb-2">Statistics</h2>
-                    <div className="grid grid-cols-3 gap-4 mb-4">
-                        <div>
-                            <p className="text-sm">Profit</p>
-                            <p className={`text-lg font-bold ${stats.profit >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                                ${stats.profit.toFixed(2)}
-                            </p>
+            <AnimatePresence>
+                {showStats && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 50 }}
+                        className="w-full bg-gray-800 p-4 rounded-lg"
+                    >
+                        <div className="w-full bg-gray-800 p-4 rounded-lg">
+                            <h2 className="text-xl font-bold mb-2">Statistics</h2>
+                            <div className="grid grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <p className="text-sm">Profit</p>
+                                    <p className={`text-lg font-bold ${stats.profit >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                        ${stats.profit.toFixed(2)}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-sm">Wins</p>
+                                    <p className="text-lg font-bold text-green-500">{stats.wins}</p>
+                                </div>
+                                <div>
+                                    <p className="text-sm">Losses</p>
+                                    <p className="text-lg font-bold text-red-500">{stats.losses}</p>
+                                </div>
+                            </div>
+                            <ResponsiveContainer width="100%" height={200}>
+                                <LineChart data={stats.history}>
+                                    <XAxis dataKey="time" tick={false} />
+                                    <YAxis />
+                                    <Tooltip
+                                        contentStyle={{ backgroundColor: '#1F2937', border: 'none' }}
+                                        labelStyle={{ color: '#9CA3AF' }}
+                                        formatter={(value: number) => [`$${value.toFixed(2)}`, 'Profit']}
+                                        labelFormatter={(label: number) => new Date(label).toLocaleTimeString()}
+                                    />
+                                    {/* TODO: Make line red when profit is negative */}
+                                    <Line type="monotone" dataKey="profit" stroke="#10B981" dot={false} />
+                                </LineChart>
+                            </ResponsiveContainer>
                         </div>
-                        <div>
-                            <p className="text-sm">Wins</p>
-                            <p className="text-lg font-bold text-green-500">{stats.wins}</p>
-                        </div>
-                        <div>
-                            <p className="text-sm">Losses</p>
-                            <p className="text-lg font-bold text-red-500">{stats.losses}</p>
-                        </div>
-                    </div>
-                    <ResponsiveContainer width="100%" height={200}>
-                        <LineChart data={stats.history}>
-                            <XAxis dataKey="time" tick={false} />
-                            <YAxis />
-                            <Tooltip
-                                contentStyle={{ backgroundColor: '#1F2937', border: 'none' }}
-                                labelStyle={{ color: '#9CA3AF' }}
-                                formatter={(value: number) => [`$${value.toFixed(2)}`, 'Profit']}
-                                labelFormatter={(label: number) => new Date(label).toLocaleTimeString()}
-                            />
-                            <Line type="monotone" dataKey="profit" stroke="#10B981" dot={false} />
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
-            )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </main>
     )
 }
